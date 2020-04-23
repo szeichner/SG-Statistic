@@ -77,8 +77,6 @@ namespace SGStatistic
 
         }
 
-        //DONE: method to read in the file and parse and set values for all the parts of the method file
-
 
     }
 

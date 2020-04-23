@@ -88,26 +88,6 @@ namespace SGStatistic
             {
                 Console.WriteLine("Error in the mass tolerance unit!");
             }
-
-            //calculate high and low mass using tolerance units
-            HighMass = Mass + Tolerance;
-            LowMass = Mass - Tolerance;
-
-            //public void DefineMassToleranceUnit(int PeakNum, int inputMassToleranceUnit)
-            //{
-            //    if (inputMassToleranceUnit == 1)
-            //    {
-            //        MassToleranceUnit[PeakNum] = ToleranceUnits.ppm;
-            //    }
-            //    else if (inputMassToleranceUnit == 2)
-            //    {
-            //        MassToleranceUnit[PeakNum] = ToleranceUnits.mmu;
-            //    }
-            //    else
-            //    {
-            //        //TODO: handle input other than 1 or 2
-            //    }
-            //}
         }
  
         /// <summary>

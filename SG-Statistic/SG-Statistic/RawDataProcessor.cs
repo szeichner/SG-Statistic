@@ -1,23 +1,47 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using Newtonsoft.Json;
 
 namespace SGStatistic
 {
+    /// <summary>
+    /// Process Raw Data files within a folder path, given an input method and list of raw files
+    /// </summary>
     public class RawDataProcessor
     {
         public string FolderPath { get; set; }
-        public string MethodFileName { get; set; }
+        public string[] RawFilePathNames { get; set; }
         public MethodFile MethodFile { get; set; }
         public RawDataObject[] RawDataObjectArray { get; set; }
 
-        public RawDataProcessor(string folderPath, List<string> rawFileNames, string methodFileName)
+        public RawDataProcessor(string folderPath, string methodFileName)
         {
-            //instantiate all the necessary properties to process data
             FolderPath = folderPath;
-            MethodFileName = methodFileName;
-            MethodFile = new MethodFile(methodFileName);
-            RawDataObjectArray = new RawDataObject[rawFileNames.Count];
+
+            try
+            {
+                //read in all the files with the path name .RAW, add to an array
+                List<string> rawFileNames = new List<string>(Directory.EnumerateFiles(FolderPath, "*.RAW"));
+                RawDataObjectArray = new RawDataObject[rawFileNames.Count];
+
+                //set up the method file to read in the raw files
+                if (File.Exists(folderPath + methodFileName))
+                {
+                    string methodFile = folderPath + methodFileName;
+                    MethodFile = new MethodFile(methodFile);
+                }
+                else
+                {
+                    Console.WriteLine("Method file does not exist, please create one to process .RAW files.");
+                }
+               
+            }
+            catch(Exception ex)
+            {
+                Console.Write(ex);
+            }
+            
         }
 
         public void ProcessRawFiles(List<string> fileNames, MethodFile methodFile, string exportFileName)
@@ -38,8 +62,6 @@ namespace SGStatistic
             {
                 Console.Write(ex);
             }
-
-
         }
 
     }

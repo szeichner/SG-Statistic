@@ -23,28 +23,15 @@ namespace SGStatistic
             Console.Write("Please input a folder path with .RAW files of interest for analysis");
             string folderPath = Console.ReadLine();
             string methodFileName = "method.txt";
-            string exportFileName = "";
+            string exportFileName = "output.txt";
 
             //Try get method file and list of raw file names from folder path
             if(Directory.Exists(folderPath))
             {
                 try
                 {
-
-                    //read in all the files with the path name .RAW, add to an array
-                    List<string> rawFileNames = new List<string>(Directory.EnumerateFiles(folderPath, "*.RAW"));
-
-                    if (File.Exists(folderPath + methodFileName))
-                    {
-                        string methodFile = folderPath + methodFileName;
-                        RawDataProcessor thisProcessor = new RawDataProcessor(folderPath, rawFileNames, methodFile);
-                        thisProcessor.ProcessRawFiles(rawFileNames, thisProcessor.MethodFile, exportFileName);
-
-                    }
-                    else
-                    {
-                        Console.WriteLine("Method file does not exist, please create one to process .RAW files.");
-                    }
+                        RawDataProcessor thisProcessor = new RawDataProcessor(folderPath);
+                        thisProcessor.ProcessRawFiles(thisProcessor.FileNames, thisProcessor.MethodFile, exportFileName);
 
                 }
                 catch (Exception ex)
