@@ -22,7 +22,7 @@ namespace SGStatistic
         public string[] ChemicalFormulas { get; set; }
         public double[] Masses { get; set; }
         public double[] MassTolerances { get; set; }
-        public string[] MassToleranceUnits { get; set; }
+        public ToleranceUnits[] MassToleranceUnits { get; set; }
 
         ///<summary> Instantiate method file using input .txt file path</summary>
         public MethodFile(string inputMethodFile)
@@ -71,17 +71,15 @@ namespace SGStatistic
 
             methodDictionary.TryGetValue(toleranceUnitsString, out string toleranceUnits);
             string[] toleranceUnitsArray = toleranceUnits.Split(',');
-            ToleranceUnits = new string[toleranceUnits.Length];
+            MassToleranceUnits = new ToleranceUnits[toleranceUnitsArray.Length];
             for (int i = 0; i < toleranceUnitsArray.Length; i++)
             {
-                ToleranceUnits[i] = toleranceUnitsArray[i];
+                MassToleranceUnits[i] = (ToleranceUnits)Enum.Parse(typeof(ToleranceUnits), toleranceUnitsArray[i]);
+                 
             }
-
 
         }
 
     }
-
-
     }
 

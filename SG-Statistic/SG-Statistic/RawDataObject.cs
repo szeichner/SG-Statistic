@@ -126,7 +126,7 @@ namespace SGStatistic
             };
             IChromatogramSettings[] allSettings = { traceSettings };
 
-            MassOptions massOptions = new MassOptions() { Tolerance = Tolerance, ToleranceUnits = ToleranceUnits.amu };
+            MassOptions massOptions = new MassOptions() { Tolerance = Tolerance, ToleranceUnits = ToleranceUnits};
             var chromatogramData = RawFile.GetChromatogramData(allSettings, -1, -1, massOptions); //get all chromatogram data
 
             // Get data from the chromatogram

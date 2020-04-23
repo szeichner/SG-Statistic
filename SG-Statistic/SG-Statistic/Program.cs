@@ -30,8 +30,8 @@ namespace SGStatistic
             {
                 try
                 {
-                        RawDataProcessor thisProcessor = new RawDataProcessor(folderPath);
-                        thisProcessor.ProcessRawFiles(thisProcessor.FileNames, thisProcessor.MethodFile, exportFileName);
+                        RawDataProcessor thisProcessor = new RawDataProcessor(folderPath, methodFileName);
+                        thisProcessor.ProcessRawFiles(thisProcessor.RawFilePathNames, thisProcessor.MethodFile, exportFileName);
 
                 }
                 catch (Exception ex)

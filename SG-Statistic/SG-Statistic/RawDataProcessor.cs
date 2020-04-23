@@ -11,7 +11,7 @@ namespace SGStatistic
     public class RawDataProcessor
     {
         public string FolderPath { get; set; }
-        public string[] RawFilePathNames { get; set; }
+        public List<string> RawFilePathNames { get; set; }
         public MethodFile MethodFile { get; set; }
         public RawDataObject[] RawDataObjectArray { get; set; }
 
@@ -62,6 +62,7 @@ namespace SGStatistic
             {
                 Console.Write(ex);
             }
+
         }
 
     }
