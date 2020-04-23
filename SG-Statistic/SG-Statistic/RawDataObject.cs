@@ -10,6 +10,9 @@ using ThermoFisher.CommonCore.RawFileReader;
 
 namespace SGStatistic
 {
+    /// <summary>
+    /// This object gets populated with input data for one peak from a RAW data file, based on input peak mass and mass tolerance.
+    /// </summary>
     [Serializable]
     public class RawDataObject
     {

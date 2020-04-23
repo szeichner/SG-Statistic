@@ -2,31 +2,27 @@
 
 using System;
 using System.Collections.Generic;
-using CSMSL.Chemistry;
 using ThermoFisher.CommonCore.Data;
-
-/// CSMSL (C# mass spec library) is a package(?) on github: https://github.com/dbaileychess/CSMSL
-/// I used CSMSL to read chemical formula inputs and calculate the corresponding mass (2020/03/31).
-/// For future expansion of handling the chemical structure, atoms and bonds in the ion, we can consider OEChem toolkit:
-/// https://docs.eyesopen.com/toolkits/csharp/oechemtk/index.html
-
 
 namespace SGStatistic
 {
+    /// <summary>
+    /// Populate properties based on method file that will be used to process .RAW data files
+    /// </summary>
     public class MethodFile
     {
-        //String to look for in text method file
+        //Different strings used to parse the method file inputs
         private string inputPeakNumberString = "peakNumber";
         private string chemicalFormulaString = "chemicalFormula";
         private string massString = "mass";
         private string toleranceString = "tolerance";
+        private string toleranceUnitsString = "toleranceUnits";
 
-        public int InputPeakNumber { get; set; } //how many peaks there are
-        //public IsotopologueType[] PeakType { get; set; }
+        public int InputPeakNumber { get; set; }
         public string[] ChemicalFormulas { get; set; }
         public double[] Masses { get; set; }
         public double[] MassTolerances { get; set; }
-        public ToleranceUnits[] MassToleranceUnits { get; set; }
+        public string[] MassToleranceUnits { get; set; }
 
         ///<summary> Instantiate method file using input .txt file path</summary>
         public MethodFile(string inputMethodFile)
@@ -72,10 +68,19 @@ namespace SGStatistic
             {
                 MassTolerances[i] = Convert.ToDouble(tolerances);
             }
-        
-        }
+
+            methodDictionary.TryGetValue(toleranceUnitsString, out string toleranceUnits);
+            string[] toleranceUnitsArray = toleranceUnits.Split(',');
+            ToleranceUnits = new string[toleranceUnits.Length];
+            for (int i = 0; i < toleranceUnitsArray.Length; i++)
+            {
+                ToleranceUnits[i] = toleranceUnitsArray[i];
+            }
+
 
         }
+
+    }
 
 
     }
