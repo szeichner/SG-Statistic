@@ -1,4 +1,5 @@
 ﻿using System;
+using Newtonsoft.Json;
 
 using ThermoFisher.CommonCore.Data;
 using ThermoFisher.CommonCore.Data.Business;
@@ -9,15 +10,22 @@ using ThermoFisher.CommonCore.RawFileReader;
 
 namespace SGStatistic
 {
+    [Serializable]
     public class RawDataObject
     {
         //Constants
+        ///<summary> Type of filter </summary>
         private const string FILTER_MS = "ms";
 
         //Properties from the Method file
+        ///<summary> Mass Tolerance </summary>
         private double Tolerance { get; set; }
+        private string ToleranceUnits { get; set; }
+        ///<summary> Mass of peak </summary>
         private double Mass { get; set; }
+        ///<summary> High mass based on  input mass and  mass tolerance </summary>
         private double HighMass { get; set; }
+        ///<summary> Low mass based on  input mass and  mass tolerance </summary>
         private double LowMass { get; set; }
 
         //Header info
@@ -37,16 +45,15 @@ namespace SGStatistic
         public double[] SpectraResolutions { get; set; }
         public double[] SpectraNoise { get; set; }
 
-
         /// <summary>
         /// Instantiates and populates a raw data object based on input raw file and specified method
         /// </summary>
         /// <param name="inputRawFile">Raw file to analyze</param>
         /// <param name="inputMethodFile">Method file describing how to export the data</param>
         /// <returns></returns>
-        public RawDataObject(string inputRawFile, MethodFile inputMethodFile)
+        public RawDataObject(string inputRawFile, string formula,  double mass, double tolerance, string toleranceUnits)
         {
-            ReadMethodFile(inputMethodFile);
+            CalculateHighAndLowMasses(mass, tolerance, toleranceUnits);
             GetSetRawFileData(inputRawFile);
             GetChromatogramData();
             GetSpectrumData();
@@ -57,14 +64,52 @@ namespace SGStatistic
         /// </summary>
         /// <param name="methodFile">Method file describing how to export the data</param>
         /// <returns></returns>
-        private void ReadMethodFile(MethodFile methodFile)
+        private void CalculateHighAndLowMasses(double mass, double tolerance, string toleranceUnits)
         {
-            Mass = methodFile.ExactMass[0];
-            Tolerance = methodFile.MassTolerance[0];
+            Mass = mass;
+            ToleranceUnits = toleranceUnits;
+
+            //convert tolerance into the correct units
+            Tolerance = Convert.ToDouble(tolerance); // set to converted tolerance;
+
+            // ToleranceUnits = toleranceUnits;
+            if (ToleranceUnits == "mmu")
+            {
+                HighMass = mass + (tolerance / 1000);
+                LowMass = mass - (tolerance / 1000);
+
+            }
+            else if (ToleranceUnits == "ppm")
+            {
+                HighMass = mass * (1 + tolerance / 1000000);
+                LowMass = mass * (1 - tolerance / 1000000);
+            }
+            else
+            {
+                Console.WriteLine("Error in the mass tolerance unit!");
+            }
+
+            //calculate high and low mass using tolerance units
             HighMass = Mass + Tolerance;
             LowMass = Mass - Tolerance;
-        }
 
+            //public void DefineMassToleranceUnit(int PeakNum, int inputMassToleranceUnit)
+            //{
+            //    if (inputMassToleranceUnit == 1)
+            //    {
+            //        MassToleranceUnit[PeakNum] = ToleranceUnits.ppm;
+            //    }
+            //    else if (inputMassToleranceUnit == 2)
+            //    {
+            //        MassToleranceUnit[PeakNum] = ToleranceUnits.mmu;
+            //    }
+            //    else
+            //    {
+            //        //TODO: handle input other than 1 or 2
+            //    }
+            //}
+        }
+ 
         /// <summary>
         /// Get and set general information from the raw file
         /// </summary>

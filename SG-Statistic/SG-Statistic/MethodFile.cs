@@ -1,6 +1,7 @@
 ﻿//TODO: add header comments
 
 using System;
+using System.Collections.Generic;
 using CSMSL.Chemistry;
 using ThermoFisher.CommonCore.Data;
 
@@ -14,97 +15,66 @@ namespace SGStatistic
 {
     public class MethodFile
     {
-        public enum IsotopologueType
-        {
-            Base,
-            Substituted
-        }//TODO:13C,D,17O,18O,15N,...
+        //String to look for in text method file
+        private string inputPeakNumberString = "peakNumber";
+        private string chemicalFormulaString = "chemicalFormula";
+        private string massString = "mass";
+        private string toleranceString = "tolerance";
 
-        public enum MeasurementType
-        {
-            GCreservoir,
-            ESIsyringePump,
-            GCdirectElution
-        }
-
-        public MeasurementType MsmtType { get; set; }
-        public int PeakNumber { get; set; }
+        public int InputPeakNumber { get; set; } //how many peaks there are
         //public IsotopologueType[] PeakType { get; set; }
-        public ChemicalFormula[] Formula { get; set; }
-        public double[] ExactMass { get; set; }
-        public double[] MassTolerance { get; set; }
-        public ToleranceUnits[] MassToleranceUnit { get; set; }
-        public double[] HighMass { get; set; }
-        public double[] LowMass { get; set; }
+        public string[] ChemicalFormulas { get; set; }
+        public double[] Masses { get; set; }
+        public double[] MassTolerances { get; set; }
+        public ToleranceUnits[] MassToleranceUnits { get; set; }
 
-        public double StartTime { get; set; }
-        public double StopTime { get; set; }
-        public double MinAbsIntensityPercentage { get; set; }
-
-
-
-
-        public MethodFile(int inputMeasurementType, int inputPeakNumber)
+        ///<summary> Instantiate method file using input .txt file path</summary>
+        public MethodFile(string inputMethodFile)
         {
-            switch (inputMeasurementType)
+            //Read lines in from the method file .txt
+            string[] methodLines = System.IO.File.ReadAllLines(inputMethodFile);
+            Dictionary<string, string> methodDictionary = new Dictionary<string, string>(methodLines.Length);
+
+            //parse the input method file
+            for (int i = 0; i < methodLines.Length; i++)
             {
-                case 1:
-                    MsmtType = MeasurementType.GCreservoir;
-                    break;
-                case 2:
-                    MsmtType = MeasurementType.ESIsyringePump;
-                    break;
-                case 3:
-                    MsmtType = MeasurementType.GCdirectElution;
-                    break;
+                string[] splitValues = methodLines[i].Split('=');
+
+                methodDictionary.Add(splitValues[0], splitValues[1]);
             }
-            PeakNumber = inputPeakNumber;
-            //PeakType = new IsotopologueType[PeakNumber];
-            Formula = new ChemicalFormula[PeakNumber];
-            ExactMass = new double[PeakNumber];
-            MassTolerance = new double[PeakNumber];//TODO:default value?
-            MassToleranceUnit = new ToleranceUnits[PeakNumber];//TODO:default value?
-            HighMass = new double[PeakNumber];
-            LowMass = new double[PeakNumber];
+
+            //parse the other inputs of the method file, and set the properties of the Method File object
+            //get the number of peaks
+            methodDictionary.TryGetValue(inputPeakNumberString, out string peakNumber);
+            InputPeakNumber = Convert.ToInt32(peakNumber);
+
+            //get the list of chemical formulas
+            methodDictionary.TryGetValue(chemicalFormulaString, out string chemFormulas);
+            string[] formulaArray = chemFormulas.Split(',');
+            ChemicalFormulas = new string[formulaArray.Length];
+            for (int i = 0; i < formulaArray.Length; i++)
+            {
+                ChemicalFormulas[i] = formulaArray[i];
+            }
+            
+            //get the list of masses
+            methodDictionary.TryGetValue(massString, out string masses);
+            Masses = new double[masses.Length];
+            for (int i = 0; i < masses.Length; i++)
+            {
+                Masses[i] = Convert.ToDouble(masses[i]);
+            }
+
+            //get the list of mass tolerances
+            methodDictionary.TryGetValue(toleranceString, out string tolerances);
+            MassTolerances = new double[tolerances.Length];
+            for (int i = 0; i < tolerances.Length; i++)
+            {
+                MassTolerances[i] = Convert.ToDouble(tolerances);
+            }
+        
         }
 
-        public void DefineMassToleranceUnit(int PeakNum, int inputMassToleranceUnit)
-        {
-            if (inputMassToleranceUnit == 1)
-            {
-                MassToleranceUnit[PeakNum] = ToleranceUnits.ppm;
-            }
-            else if (inputMassToleranceUnit == 2)
-            {
-                MassToleranceUnit[PeakNum] = ToleranceUnits.mmu;
-            }
-            else
-            {
-                //TODO: handle input other than 1 or 2
-            }
-        }
-
-        public void CalculateHighLowMass()
-        {
-            for (int i = 0; i < PeakNumber; i++)
-            {
-                if (MassToleranceUnit[i] == ToleranceUnits.mmu)
-                {
-                    HighMass[i] = ExactMass[i] + (MassTolerance[i] / 1000);
-                    LowMass[i] = ExactMass[i] - (MassTolerance[i] / 1000);
-                    Console.WriteLine("Exact {0:0.00000}, High {1:0.00000}, Low {2:0.00000}", ExactMass[i], HighMass[i], LowMass[i]);
-                }
-                else if (MassToleranceUnit[i] == ToleranceUnits.ppm)
-                {
-                    HighMass[i] = ExactMass[i] * (1 + MassTolerance[i] / 1000000);
-                    LowMass[i] = ExactMass[i] * (1 - MassTolerance[i] / 1000000);
-                    Console.WriteLine("Exact {0:0.00000}, High {1:0.00000}, Low {2:0.00000}", ExactMass[i], HighMass[i], LowMass[i]);
-                }
-                else
-                {
-                    //Console.WriteLine("Error in the mass tolerance unit!");
-                }
-            }
         }
 
         //DONE: method to read in the file and parse and set values for all the parts of the method file
@@ -112,4 +82,3 @@ namespace SGStatistic
 
     }
 
-}
