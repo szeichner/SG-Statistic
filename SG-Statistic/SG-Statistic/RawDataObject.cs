@@ -32,41 +32,74 @@ namespace SGStatistic
         private double LowMass { get; set; }
 
         //Header info
+        /// <summary>
+        /// Mass resolution of the experiment
+        /// </summary>
         public double MassResolution { get; set; }
-        private IRawDataPlus RawFile { get; set; }
 
         //Chromatogram Data
+        /// <summary>
+        /// List of scans from the analysis
+        /// </summary>
         public int[] ScanArray { get; set; }
+        /// <summary>
+        /// Time positions of the chromatogram
+        /// </summary>
         public double[] ChromatogramPeakPositionsArray { get; set; }
+        /// <summary>
+        /// Intensities of the chromatogram
+        /// </summary>
         public double[] ChromatogramIntensitiesArray { get; set; }
 
         //SpectrumData
+        /// <summary>
+        /// TIC from mass spectrum
+        /// </summary>
         public double[] SpectraTIC { get; set; }
+        /// <summary>
+        /// Retention time of each scan from the mass spectrum for the peak of interest
+        /// </summary>
         public double[] SpectraRetentionTime { get; set; }
+        /// <summary>
+        /// Intensity of the base peak from the mass spectrum for the mass range of interest, based on input mass and tolerance
+        /// </summary>
         public double[] SpectraBasePeakIntensities { get; set; }
+        /// <summary>
+        /// m/z of the input peaks for analysis
+        /// </summary>
         public double[] SpectraMasses { get; set; }
+        /// <summary>
+        /// Resolution of each scan in the mass spectra
+        /// </summary>
         public double[] SpectraResolutions { get; set; }
+        /// <summary>
+        /// Noise for each scan in the mass spectra
+        /// </summary>
         public double[] SpectraNoise { get; set; }
 
         /// <summary>
         /// Instantiates and populates a raw data object based on input raw file and specified method
-        /// </summary>
-        /// <param name="inputRawFile">Raw file to analyze</param>
-        /// <param name="inputMethodFile">Method file describing how to export the data</param>
-        /// <returns></returns>
+        /// <param name="inputRawFile"></param>
+        /// <param name="formula"></param>
+        /// <param name="mass"></param>
+        /// <param name="tolerance"></param>
+        /// <param name="toleranceUnits"></param>
         public RawDataObject(string inputRawFile, string formula,  double mass, double tolerance, ToleranceUnits toleranceUnits)
         {
             CalculateHighAndLowMasses(mass, tolerance, toleranceUnits);
-            GetSetRawFileData(inputRawFile);
-            GetChromatogramData();
-            GetSpectrumData();
+            IRawDataPlus rawFile = GetSetRawFileData(inputRawFile);
+            GetChromatogramData(rawFile);
+            GetSpectrumData(rawFile);
+            CleanUpRawFile(rawFile);
+
         }
 
         /// <summary>
         /// Reads the information from the method file and populates fields based on specified peak and tolerance
         /// </summary>
-        /// <param name="methodFile">Method file describing how to export the data</param>
-        /// <returns></returns>
+        /// <param name="mass"></param>
+        /// <param name="tolerance"></param>
+        /// <param name="toleranceUnits"></param>
         private void CalculateHighAndLowMasses(double mass, double tolerance, ToleranceUnits toleranceUnits)
         {
             Mass = mass;
@@ -89,7 +122,7 @@ namespace SGStatistic
             }
             else
             {
-                Console.WriteLine("Error in the mass tolerance unit!");
+                Console.WriteLine("Error in the mass tolerance unit.");
             }
         }
  
@@ -98,53 +131,78 @@ namespace SGStatistic
         /// </summary>
         /// <param name="inputRawFile"></param>
         /// <returns></returns>
-        private void GetSetRawFileData(string inputRawFile)
+        private IRawDataPlus GetSetRawFileData(string inputRawFile)
         {
             // Create the IRawDataPlus object for accessing the RAW file
-            RawFile = RawFileReaderAdapter.FileFactory(inputRawFile);
+            IRawDataPlus rawFile = RawFileReaderAdapter.FileFactory(inputRawFile);
+
+            if (!rawFile.IsOpen || rawFile.IsError)
+            {
+                Console.WriteLine("Unable to access the RAW file using the RawFileReader class!");
+            }
+
+            // Check for any errors in the RAW file
+            if (rawFile.IsError)
+            {
+                Console.WriteLine("Error opening ({0})", rawFile.FileError);
+            }
+
+            // Check if the RAW file is being acquired
+            if (rawFile.InAcquisition)
+            {
+                Console.WriteLine("RAW file still being acquired...");
+
+            }
 
             // Select instrument we are intereted in looking at data from
-            RawFile.SelectInstrument(Device.MS, 1);
-        }
+            rawFile.SelectInstrument(Device.MS, 1);
 
+            return rawFile;
+        }
         /// <summary>
         /// Get and set chromatogram data from the raw file
         /// </summary>
-        /// <returns></returns>
-        private void GetChromatogramData()
+        /// <param name="inputRawFile"></param>
+        private void GetChromatogramData(IRawDataPlus inputRawFile)
         {
-
-            //Get mass resolution for the run from the header
-            MassResolution = RawFile.RunHeaderEx.MassResolution;
-
-            //Set up settings to extract the data
-            ChromatogramTraceSettings traceSettings =
-            new ChromatogramTraceSettings(TraceType.MassRange)
+            try
             {
-                Filter = FILTER_MS,
-                MassRanges = new[] { new Range(LowMass, HighMass) }
-            };
-            IChromatogramSettings[] allSettings = { traceSettings };
+                //Get mass resolution for the run from the header
+                MassResolution = inputRawFile.RunHeaderEx.MassResolution;
 
-            MassOptions massOptions = new MassOptions() { Tolerance = Tolerance, ToleranceUnits = ToleranceUnits};
-            var chromatogramData = RawFile.GetChromatogramData(allSettings, -1, -1, massOptions); //get all chromatogram data
+                //Set up settings to extract the data
+                ChromatogramTraceSettings traceSettings =
+                new ChromatogramTraceSettings(TraceType.MassRange)
+                {
+                    Filter = FILTER_MS,
+                    MassRanges = new[] { new Range(LowMass, HighMass) }
+                };
+                IChromatogramSettings[] allSettings = { traceSettings };
 
-            // Get data from the chromatogram
-            ScanArray = chromatogramData.ScanNumbersArray[0];
-            ChromatogramPeakPositionsArray = chromatogramData.PositionsArray[0]; //get positions  of each scan
-            ChromatogramIntensitiesArray = chromatogramData.IntensitiesArray[0]; //get list of intensities for scan numbers
+                MassOptions massOptions = new MassOptions() { Tolerance = Tolerance, ToleranceUnits = ToleranceUnits };
+                var chromatogramData = inputRawFile.GetChromatogramData(allSettings, -1, -1, massOptions); //get all chromatogram data
 
+                // Get data from the chromatogram
+                ScanArray = chromatogramData.ScanNumbersArray[0];
+                ChromatogramPeakPositionsArray = chromatogramData.PositionsArray[0]; //get positions  of each scan
+                ChromatogramIntensitiesArray = chromatogramData.IntensitiesArray[0]; //get list of intensities for scan numbers
+            }
+            catch(Exception ex)
+            {
+                Console.Write("Error in accessing chromatogram data: " + ex);
+            }
+            
         }
 
         /// <summary>
         /// Get and set data from the mass spectrum
         /// </summary>
-        /// <returns></returns>
-        private void GetSpectrumData()
+        /// <param name="inputRawFile"></param>
+        private void GetSpectrumData(IRawDataPlus inputRawFile)
         {
             // Get the first and last scan from the RAW file
-            int firstScanNumber = RawFile.RunHeaderEx.FirstSpectrum;
-            int lastScanNumber = RawFile.RunHeaderEx.LastSpectrum;
+            int firstScanNumber = inputRawFile.RunHeaderEx.FirstSpectrum;
+            int lastScanNumber = inputRawFile.RunHeaderEx.LastSpectrum;
 
             // Set up empty variables to populate with mass spectrum data
             SpectraTIC = new double[lastScanNumber];
@@ -154,48 +212,65 @@ namespace SGStatistic
             SpectraNoise = new double[lastScanNumber];
             SpectraResolutions = new double[lastScanNumber];
 
-            //get out information from mass spectra for each scan
-            for (int scan = 0; scan <= (ScanArray.Length - 1); scan++)
+            try
             {
-                int thisScan = ScanArray[scan];
-                // get the scan statistics for this scan number
-                ScanStatistics scanStatistic = RawFile.GetScanStatsForScanNumber(thisScan);
-
-                //get the TIC
-                SpectraTIC[scan] = scanStatistic.TIC;
-                //get retention time
-                SpectraRetentionTime[scan] = RawFile.RetentionTimeFromScanNumber(thisScan);
-                //TODO: get set IT
-
-                //Check to see if there is high resolution data
-                if (scanStatistic.IsCentroidScan)
+                //get out information from mass spectra for each scan
+                for (int scan = 0; scan <= (ScanArray.Length - 1); scan++)
                 {
-                    // Get the centroid (label) data from the RAW file for this scan
-                    var centroidStream = RawFile.GetCentroidStream(ScanArray[scan], false); //don't include reference and exception peaks
+                    int thisScan = ScanArray[scan];
+                    // get the scan statistics for this scan number
+                    ScanStatistics scanStatistic = inputRawFile.GetScanStatsForScanNumber(thisScan);
 
-                    SpectraMasses[scan] = centroidStream.BasePeakMass;
-                    SpectraBasePeakIntensities[scan] = centroidStream.BasePeakIntensity;
-                    SpectraNoise[scan] = centroidStream.BasePeakNoise;
-                    SpectraResolutions[scan] = centroidStream.BasePeakResolution;
-                    //TODO: handle for there being more than one peak in this range, and alert for that
+                    //get the TIC
+                    SpectraTIC[scan] = scanStatistic.TIC;
+                    //get retention time
+                    SpectraRetentionTime[scan] = inputRawFile.RetentionTimeFromScanNumber(thisScan);
+                    //TODO: get set IT
 
+                    //Check to see if there is high resolution data
+                    if (scanStatistic.IsCentroidScan)
+                    {
+                        // Get the centroid (inputRawFile) data from the RAW file for this scan
+                        var centroidStream = inputRawFile.GetCentroidStream(ScanArray[scan], false); //don't include reference and exception peaks
+
+                        SpectraMasses[scan] = centroidStream.BasePeakMass;
+                        SpectraBasePeakIntensities[scan] = centroidStream.BasePeakIntensity;
+                        SpectraNoise[scan] = centroidStream.BasePeakNoise;
+                        SpectraResolutions[scan] = centroidStream.BasePeakResolution;
+                        //TODO: handle for there being more than one peak in this range, and alert for that
+
+                    }
+                    else
+                    {
+                        //If no high-res data, then populate with low resolution data
+                        var segmentedScan = inputRawFile.GetSegmentedScanFromScanNumber(ScanArray[scan], scanStatistic);
+
+                        SpectraMasses[scan] = segmentedScan.Positions[0];
+                        SpectraBasePeakIntensities[scan] = segmentedScan.Intensities[0];
+                        //TODO: noise
+                        //TODO: resolution?
+                    }
                 }
-                else
-                {
-                    //If no high-res data, then populate with low resolution data
-
-                    var segmentedScan = RawFile.GetSegmentedScanFromScanNumber(ScanArray[scan], scanStatistic);
-
-                    //TODO: input base peak information
-                    SpectraMasses[scan] = segmentedScan.Positions[0];
-                    SpectraBasePeakIntensities[scan] = segmentedScan.Intensities[0];
-
-                    //TODO : get low res data instead (i.e., segmented scans)
-
-                }
+            }
+            catch (Exception ex)
+            {
+                Console.Write("Error in accessing spectrum data: " + ex);
+            }
+           
 
             }
 
+        /// <summary>
+        /// Dispose of the raw file object to handle memory situation
+        /// </summary>
+        /// <param name="rawFile"></param>
+        private void CleanUpRawFile(IRawDataPlus rawFile)
+        {
+            rawFile.Dispose();
         }
+
+
     }
-}
+
+        
+    }

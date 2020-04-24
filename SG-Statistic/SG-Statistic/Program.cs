@@ -13,6 +13,9 @@ using ThermoFisher.CommonCore.RawFileReader;
 
 namespace SGStatistic
 {
+    /// <summary>
+    /// Main program to run the Raw File Processor
+    /// </summary>
     internal static class Program
     {
 
@@ -21,9 +24,10 @@ namespace SGStatistic
             //look for a method file in the input folder path
 
             //Console.Write("Please input a folder path with .RAW files of interest for analysis");
-            string folderPath = "/Users/sarahzeichner/Documents/Caltech/2019-2020/Research/Code/SG-Statistic/testFolder";//Console.ReadLine();
-            string methodFileName = "method.txt";
-            string exportFileName = "_output.txt";
+            string folderPath = "/Users/sarahzeichner/Documents/Caltech/2019-2020/Research/Code/SG-Statistic/testFolder"; //Console.ReadLine();
+            string methodFileName = "method.txt"; //Console.ReadLine();
+            //Console.Write("Please input what path name you would like to append to each of your output files.");
+            string exportFileName = "_output.txt"; //"_" + Console.ReadLine();
 
             //Try get method file and list of raw file names from folder path
             if(Directory.Exists(folderPath))
