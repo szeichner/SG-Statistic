@@ -21,7 +21,7 @@ namespace SGStatistic
             try
             {
                 //read in all the files with the path name .RAW, add to an array
-                List<string> rawFileNames = new List<string>(Directory.EnumerateFiles(FolderPath, "*.RAW"));
+                RawFilePathNames = new List<string>(Directory.EnumerateFiles(FolderPath, "*.RAW"));
 
                 //set up the method file to read in the raw files
                 if (File.Exists(folderPath + "/" + methodFileName))

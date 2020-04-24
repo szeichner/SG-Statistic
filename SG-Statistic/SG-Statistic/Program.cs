@@ -23,7 +23,7 @@ namespace SGStatistic
             //Console.Write("Please input a folder path with .RAW files of interest for analysis");
             string folderPath = "/Users/sarahzeichner/Documents/Caltech/2019-2020/Research/Code/SG-Statistic/testFolder";//Console.ReadLine();
             string methodFileName = "method.txt";
-            string exportFileName = "output.txt";
+            string exportFileName = "_output.txt";
 
             //Try get method file and list of raw file names from folder path
             if(Directory.Exists(folderPath))
