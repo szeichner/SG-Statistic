@@ -55,18 +55,20 @@ namespace SGStatistic
             
             //get the list of masses
             methodDictionary.TryGetValue(massString, out string masses);
-            Masses = new double[masses.Length];
-            for (int i = 0; i < masses.Length; i++)
+            string[] massesArray = masses.Split(',');
+            Masses = new double[massesArray.Length];
+            for (int i = 0; i < massesArray.Length; i++)
             {
-                Masses[i] = Convert.ToDouble(masses[i]);
+                Masses[i] = Convert.ToDouble(massesArray[i]);
             }
 
             //get the list of mass tolerances
             methodDictionary.TryGetValue(toleranceString, out string tolerances);
-            MassTolerances = new double[tolerances.Length];
-            for (int i = 0; i < tolerances.Length; i++)
+            string[] tolerancesArray = tolerances.Split(',');
+            MassTolerances = new double[tolerancesArray.Length];
+            for (int i = 0; i < tolerancesArray.Length; i++)
             {
-                MassTolerances[i] = Convert.ToDouble(tolerances);
+                MassTolerances[i] = Convert.ToDouble(tolerancesArray[i]);
             }
 
             methodDictionary.TryGetValue(toleranceUnitsString, out string toleranceUnits);

@@ -24,9 +24,9 @@ namespace SGStatistic
                 List<string> rawFileNames = new List<string>(Directory.EnumerateFiles(FolderPath, "*.RAW"));
 
                 //set up the method file to read in the raw files
-                if (File.Exists(folderPath + methodFileName))
+                if (File.Exists(folderPath + "/" + methodFileName))
                 {
-                    string methodFile = folderPath + methodFileName;
+                    string methodFile = folderPath + "/" + methodFileName;
                     MethodFile = new MethodFile(methodFile);
                 }
                 else

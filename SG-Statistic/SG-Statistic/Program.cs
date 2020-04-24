@@ -20,8 +20,8 @@ namespace SGStatistic
         {
             //look for a method file in the input folder path
 
-            Console.Write("Please input a folder path with .RAW files of interest for analysis");
-            string folderPath = Console.ReadLine();
+            //Console.Write("Please input a folder path with .RAW files of interest for analysis");
+            string folderPath = "/Users/sarahzeichner/Documents/Caltech/2019-2020/Research/Code/SG-Statistic/testFolder";//Console.ReadLine();
             string methodFileName = "method.txt";
             string exportFileName = "output.txt";
 

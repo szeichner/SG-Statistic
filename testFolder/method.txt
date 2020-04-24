@@ -1,0 +1,5 @@
+peakNumber=3
+chemicalFormula=ClO4,Cl{37}O4, ClO{18}O3
+mass=99.451,101.448,101.455
+tolerance=5,5,5
+toleranceUnits=ppm,ppm,ppm
