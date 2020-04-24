@@ -10,10 +10,19 @@ namespace SGStatistic
     /// </summary>
     public class RawDataProcessor
     {
+        /// <summary>
+        /// Folder path with the method file and all the raw files to process
+        /// </summary>
         public string FolderPath { get; set; }
+        /// <summary>
+        /// list of raw files to process
+        /// </summary>
         public List<string> RawFilePathNames { get; set; }
+        /// <summary>
+        /// method file object created from input method.txt file
+        /// </summary>
         public MethodFile MethodFile { get; set; }
-      
+
         public RawDataProcessor(string folderPath, string methodFileName)
         {
             FolderPath = folderPath;
@@ -33,15 +42,21 @@ namespace SGStatistic
                 {
                     Console.WriteLine("Method file does not exist, please create one to process .RAW files.");
                 }
-               
+
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 Console.Write(ex);
             }
-            
+
         }
 
+        /// <summary>
+        /// Process a list of files in a specified folder using a specified method 
+        /// </summary>
+        /// <param name="fileNames"></param>
+        /// <param name="methodFile"></param>
+        /// <param name="exportFileName"></param>
         public void ProcessRawFiles(List<string> fileNames, MethodFile methodFile, string exportFileName)
         {
             //loop through each file and output a list of RawFileObjects
@@ -50,7 +65,7 @@ namespace SGStatistic
                 List<RawDataObject> rawDataObjects = new List<RawDataObject>();
                 for (int j = 0; j < methodFile.Masses.Length; j++)
                 {
-                   rawDataObjects.Add(new RawDataObject(fileNames[i], methodFile.ChemicalFormulas[j], methodFile.Masses[j], methodFile.MassTolerances[j], methodFile.MassToleranceUnits[j]));
+                    rawDataObjects.Add(new RawDataObject(fileNames[i], methodFile.ChemicalFormulas[j], methodFile.Masses[j], methodFile.MassTolerances[j], methodFile.MassToleranceUnits[j]));
                 }
 
                 try
@@ -58,7 +73,7 @@ namespace SGStatistic
                     //write to json object to export
                     string rtnJsonObject = JsonConvert.SerializeObject(rawDataObjects);
                     //write json object to the file
-                    System.IO.File.WriteAllText(fileNames[i]+exportFileName, rtnJsonObject);
+                    System.IO.File.WriteAllText(fileNames[i] + exportFileName, rtnJsonObject);
                 }
                 catch (Exception ex)
                 {
