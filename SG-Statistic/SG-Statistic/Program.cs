@@ -42,7 +42,6 @@ namespace SGStatistic
 
             Console.Write(".RAW file processing complete");
 
-           
         }
     }
 }

@@ -13,8 +13,7 @@ namespace SGStatistic
         public string FolderPath { get; set; }
         public List<string> RawFilePathNames { get; set; }
         public MethodFile MethodFile { get; set; }
-        public RawDataObject[] RawDataObjectArray { get; set; }
-
+      
         public RawDataProcessor(string folderPath, string methodFileName)
         {
             FolderPath = folderPath;
@@ -23,7 +22,6 @@ namespace SGStatistic
             {
                 //read in all the files with the path name .RAW, add to an array
                 List<string> rawFileNames = new List<string>(Directory.EnumerateFiles(FolderPath, "*.RAW"));
-                RawDataObjectArray = new RawDataObject[rawFileNames.Count];
 
                 //set up the method file to read in the raw files
                 if (File.Exists(folderPath + methodFileName))
@@ -46,22 +44,30 @@ namespace SGStatistic
 
         public void ProcessRawFiles(List<string> fileNames, MethodFile methodFile, string exportFileName)
         {
+            //loop through each file and output a list of RawFileObjects
             for (int i = 0; i < fileNames.Count; i++)
             {
-                RawDataObjectArray[i] = new RawDataObject(fileNames[i], methodFile.ChemicalFormulas[i], methodFile.Masses[i], methodFile.MassTolerances[i], methodFile.MassToleranceUnits[i] );
+                List<RawDataObject> rawDataObjects = new List<RawDataObject>();
+                for (int j = 0; j < methodFile.Masses.Length; j++)
+                {
+                   rawDataObjects.Add(new RawDataObject(fileNames[i], methodFile.ChemicalFormulas[j], methodFile.Masses[j], methodFile.MassTolerances[j], methodFile.MassToleranceUnits[j]));
+                }
+
+                try
+                {
+                    //write to json object to export
+                    string rtnJsonObject = JsonConvert.SerializeObject(rawDataObjects);
+                    //write json object to the file
+                    System.IO.File.WriteAllText(fileNames[i]+exportFileName, rtnJsonObject);
+                }
+                catch (Exception ex)
+                {
+                    Console.Write(ex);
+                }
+
             }
 
-            try
-            {
-                //write to json object to export
-                string rtnJsonObject = JsonConvert.SerializeObject(RawDataObjectArray);
-                //write json object to the file
-                System.IO.File.WriteAllText(exportFileName, rtnJsonObject);
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex);
-            }
+
 
         }
 

@@ -23,7 +23,7 @@ namespace SGStatistic
         //Properties from the Method file
         ///<summary> Mass Tolerance </summary>
         private double Tolerance { get; set; }
-        private string ToleranceUnits { get; set; }
+        private ToleranceUnits ToleranceUnits { get; set; }
         ///<summary> Mass of peak </summary>
         private double Mass { get; set; }
         ///<summary> High mass based on  input mass and  mass tolerance </summary>
@@ -54,7 +54,7 @@ namespace SGStatistic
         /// <param name="inputRawFile">Raw file to analyze</param>
         /// <param name="inputMethodFile">Method file describing how to export the data</param>
         /// <returns></returns>
-        public RawDataObject(string inputRawFile, string formula,  double mass, double tolerance, string toleranceUnits)
+        public RawDataObject(string inputRawFile, string formula,  double mass, double tolerance, ToleranceUnits toleranceUnits)
         {
             CalculateHighAndLowMasses(mass, tolerance, toleranceUnits);
             GetSetRawFileData(inputRawFile);
@@ -67,7 +67,7 @@ namespace SGStatistic
         /// </summary>
         /// <param name="methodFile">Method file describing how to export the data</param>
         /// <returns></returns>
-        private void CalculateHighAndLowMasses(double mass, double tolerance, string toleranceUnits)
+        private void CalculateHighAndLowMasses(double mass, double tolerance, ToleranceUnits toleranceUnits)
         {
             Mass = mass;
             ToleranceUnits = toleranceUnits;
@@ -76,13 +76,13 @@ namespace SGStatistic
             Tolerance = Convert.ToDouble(tolerance); // set to converted tolerance;
 
             // ToleranceUnits = toleranceUnits;
-            if (ToleranceUnits == "mmu")
+            if (ToleranceUnits == ToleranceUnits.mmu)
             {
                 HighMass = mass + (tolerance / 1000);
                 LowMass = mass - (tolerance / 1000);
 
             }
-            else if (ToleranceUnits == "ppm")
+            else if (ToleranceUnits == ToleranceUnits.ppm)
             {
                 HighMass = mass * (1 + tolerance / 1000000);
                 LowMass = mass * (1 - tolerance / 1000000);
