@@ -23,6 +23,11 @@ namespace SGStatistic
         /// </summary>
         public MethodFile MethodFile { get; set; }
 
+        /// <summary>
+        /// Create a RawDataProcessor object with input folder 
+        /// </summary>
+        /// <param name="folderPath"></param>
+        /// <param name="methodFileName"></param>
         public RawDataProcessor(string folderPath, string methodFileName)
         {
             FolderPath = folderPath;

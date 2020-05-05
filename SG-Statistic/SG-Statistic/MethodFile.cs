@@ -46,6 +46,7 @@ namespace SGStatistic
 
             //get the list of chemical formulas
             methodDictionary.TryGetValue(chemicalFormulaString, out string chemFormulas);
+            chemFormulas = chemFormulas.Trim('\0');
             string[] formulaArray = chemFormulas.Split(',');
             ChemicalFormulas = new string[formulaArray.Length];
             for (int i = 0; i < formulaArray.Length; i++)
@@ -55,6 +56,7 @@ namespace SGStatistic
             
             //get the list of masses
             methodDictionary.TryGetValue(massString, out string masses);
+            masses = masses.Trim('\0');
             string[] massesArray = masses.Split(',');
             Masses = new double[massesArray.Length];
             for (int i = 0; i < massesArray.Length; i++)
@@ -64,6 +66,7 @@ namespace SGStatistic
 
             //get the list of mass tolerances
             methodDictionary.TryGetValue(toleranceString, out string tolerances);
+            tolerances = tolerances.Trim('\0');
             string[] tolerancesArray = tolerances.Split(',');
             MassTolerances = new double[tolerancesArray.Length];
             for (int i = 0; i < tolerancesArray.Length; i++)
@@ -72,6 +75,7 @@ namespace SGStatistic
             }
 
             methodDictionary.TryGetValue(toleranceUnitsString, out string toleranceUnits);
+            toleranceUnits = toleranceUnits.Trim('\0');
             string[] toleranceUnitsArray = toleranceUnits.Split(',');
             MassToleranceUnits = new ToleranceUnits[toleranceUnitsArray.Length];
             for (int i = 0; i < toleranceUnitsArray.Length; i++)

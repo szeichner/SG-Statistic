@@ -25,7 +25,7 @@ namespace SGStatistic
 
             //Console.Write("Please input a folder path with .RAW files of interest for analysis");
             string folderPath = "/Users/sarahzeichner/Documents/Caltech/2019-2020/Research/Code/SG-Statistic/testFolder"; //Console.ReadLine();
-            string methodFileName = "method.txt"; //Console.ReadLine();
+            string methodFileName = "sample_DataProcessorMethod.txt"; //Console.ReadLine();
             //Console.Write("Please input what path name you would like to append to each of your output files.");
             string exportFileName = "_output.txt"; //"_" + Console.ReadLine();
 
