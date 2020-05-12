@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using Newtonsoft.Json;
+using System.Linq;
+using System.Reflection;
+using System.Text;
 
 namespace SGStatistic
 {
@@ -79,6 +82,10 @@ namespace SGStatistic
                     string rtnJsonObject = JsonConvert.SerializeObject(rawDataObjects);
                     //write json object to the file
                     System.IO.File.WriteAllText(fileNames[i] + exportFileName, rtnJsonObject);
+
+                    //write to CSV if toggled on
+                    WriteCSV(rawDataObjects, ",", "csv_output.csv");
+                    
                 }
                 catch (Exception ex)
                 {
@@ -87,8 +94,40 @@ namespace SGStatistic
 
             }
 
+        }
+
+        /// <summary>
+        /// Write the object to a csv
+        /// </summary>
+        /// <param name="items"></param>
+        /// <param name="delimator"></param>
+        /// <param name="outputPath"></param>
+        public void WriteCSV(IEnumerable<RawDataObject> items, string delimator, string outputPath)
+        {
+            Type itemType = typeof(RawDataObject);
+            var props = itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
+                                .OrderBy(p => p.Name);
 
 
+            using (var writer = new StreamWriter(outputPath))
+            {
+                //write header
+                writer.WriteLine(string.Join(delimator, props.Select(p => p.Name)));
+
+                //writer.WriteLine("HighMass: " + Convert.ToString(rawDataObject.HighMass));
+                //writer.WriteLine("LowMass: " + Convert.ToString(rawDataObject.LowMass));
+                //writer.WriteLine("Tolerance: " + Convert.ToString(rawDataObject.Tolerance) + Convert.ToString(rawDataObject.ToleranceUnits));
+                //writer.WriteLine("Resolution: " + Convert.ToString(rawDataObject.MassResolution));
+
+                //write out the objects
+                foreach (var item in items)
+                {
+
+                    writer.WriteLine(string.Join(", ", props.Select(p => p.GetValue(item, null))));
+
+                    //TODO: Fix how this is writing out to CSV
+                }
+            }
         }
 
     }
