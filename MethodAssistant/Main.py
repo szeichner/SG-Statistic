@@ -44,7 +44,7 @@ print("Let's talk about what you want to know from the measurements - ")
 
 peakCounter = 0
 
-# make a list of Isotopologue objects
+# make a list of IsotopologueInput objects
 peakGroup = []
 
 while True:
@@ -88,7 +88,7 @@ while True:
     print("{0} peak {1}, mass {2} amu, mass tolerance {3} {4}.".
           format(peakType,peak.formula,mass,mtol,unit))
     
-    # create an Isotopologue object using inputs, add the object to the list
+    # create an IsotopologueInput object using inputs, add the object to the list
     peakGroup.append(IsoIn.IsotopologueInput(peakType, peak, mass, mtol, unit))
 
     # !!todo!!: add warning for too large or too small mass tolerance
@@ -114,10 +114,12 @@ elif msmt == 2:
 elif msmt == 3:
     cullingCriteriaInput.minIntrTIC = float(input("Enter minimum acceptable intensity of base peak in percentage of TIC (total ion current) (recommend: 30%?): ").strip('%'))    
 
+#%% prompt user for output data format
+csvChoice = input('Do you want to save raw data in a Tab delimited Text file? (y/n) ').lower()
 
 #%% write .txt file
 print("\nWriting method files...")
 
-MethodFileCreator.MethodFileCreator(msmtType[msmt],polarType[polar],peakCounter,peakGroup,cullingCriteriaInput)
+MethodFileCreator.MethodFileCreator(msmtType[msmt],polarType[polar],peakCounter,peakGroup,cullingCriteriaInput,csvChoice)
 
 print("Done!")

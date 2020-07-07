@@ -6,7 +6,7 @@ Created on Sun May 10 13:37:35 2020
 @author: guannandong
 """
 
-def MethodFileCreator(measurement,polarity,peakCounter,peakGroup,cullingCriteria):
+def MethodFileCreator(measurement,polarity,peakCounter,peakGroup,cullingCriteria,csvChoice):
     # method file including everything
     f = open("method.txt","w")
     f.write("peakNumber={0}\n".format(peakCounter))
@@ -58,6 +58,8 @@ def MethodFileCreator(measurement,polarity,peakCounter,peakGroup,cullingCriteria
         f.write("exitTime={0}\n".format(cullingCriteria.exitTime))    
     elif measurement == 'small sample':
         f.write("minIntrTIC={0}\n".format(cullingCriteria.minIntrTIC))
+    
+    f.write("csvFileChoice={0}\n".format(csvChoice))
     
     f.close()
 
