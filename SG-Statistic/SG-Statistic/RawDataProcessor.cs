@@ -111,9 +111,7 @@ namespace SGStatistic
 
             using (var writer = new StreamWriter(outputPath))
             {
-                //write header
-                writer.WriteLine(string.Join(delimator, props.Select(p => p.Name)));
-
+                
                 //writer.WriteLine("HighMass: " + Convert.ToString(rawDataObject.HighMass));
                 //writer.WriteLine("LowMass: " + Convert.ToString(rawDataObject.LowMass));
                 //writer.WriteLine("Tolerance: " + Convert.ToString(rawDataObject.Tolerance) + Convert.ToString(rawDataObject.ToleranceUnits));
@@ -122,9 +120,37 @@ namespace SGStatistic
                 //write out the objects
                 foreach (var item in items)
                 {
+                    //write header
+                    writer.WriteLine(string.Join(delimator, props.Select(p => p.Name)));
+
+                    ////get out the values for each column
+                    //var values = props.Select(p => p.GetValue(item, null));
+                    //double[] iterateArray = values.FirstOrDefault<double[]>;
+
+                    //foreach (var column in values)
+                    //{
+                    //    string rowString = "";
+                    //    for (int i = 0; i < column[i].Length; i++)
+                    //    {
+
+                    //    }
+                    //    if (column > 1)
+                    //    {
+
+                    //        rowString.Append(column[i]);
+                    //    }
+                    //    else
+                    //    {
+
+                    //    }
+                    
+                    //}
 
                     writer.WriteLine(string.Join(", ", props.Select(p => p.GetValue(item, null))));
 
+                    //add some spaces before iterate again
+                    writer.WriteLine("");
+                    writer.WriteLine("");
                     //TODO: Fix how this is writing out to CSV
                 }
             }
