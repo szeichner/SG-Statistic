@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SG-Statistic", "SG-Statistic.csproj", "{EE84D94F-2452-49BB-B3B7-914C9EFCE5C0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RAW_FileReader", "..\..\..\..\..\..\..\Dropbox\Sarah_Z\RAW_FileReader\RAW_FileReader.csproj", "{0EEE2D61-C7A1-45B5-9DCD-F59B079AB2A5}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RAW_FileReader", "..\..\..\..\..\..\Dropbox\Sarah_Z\RAW_FileReader\RAW_FileReader.csproj", "{0EEE2D61-C7A1-45B5-9DCD-F59B079AB2A5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

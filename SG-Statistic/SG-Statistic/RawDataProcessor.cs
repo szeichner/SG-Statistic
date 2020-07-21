@@ -14,13 +14,9 @@ namespace SGStatistic
     public class RawDataProcessor
     {
         /// <summary>
-        /// Folder path with the method file and all the raw files to process
-        /// </summary>
-        public string FolderPath { get; set; }
-        /// <summary>
         /// list of raw files to process
         /// </summary>
-        public List<string> RawFilePathNames { get; set; }
+        public string RawFilePathName { get; set; }
         /// <summary>
         /// method file object created from input method.txt file
         /// </summary>
@@ -29,28 +25,16 @@ namespace SGStatistic
         /// <summary>
         /// Create a RawDataProcessor object with input folder 
         /// </summary>
-        /// <param name="folderPath"></param>
-        /// <param name="methodFileName"></param>
-        public RawDataProcessor(string folderPath, string methodFileName)
+        /// <param name="filenamePath"> Location of .RAW file to process </param>
+        /// <param name="methodFileNamePath"> Location of method.txt </param>
+        public RawDataProcessor(string filenamePath, string methodFileNamePath)
         {
-            FolderPath = folderPath;
-
             try
             {
-                //read in all the files with the path name .RAW, add to an array
-                RawFilePathNames = new List<string>(Directory.EnumerateFiles(FolderPath, "*.RAW"));
-
-                //set up the method file to read in the raw files
-                if (File.Exists(folderPath + "/" + methodFileName))
-                {
-                    string methodFile = folderPath + "/" + methodFileName;
-                    MethodFile = new MethodFile(methodFile);
-                }
-                else
-                {
-                    Console.WriteLine("Method file does not exist, please create one to process .RAW files.");
-                }
-
+                //read in the file path name, and the method file
+                RawFilePathName = filenamePath;
+                MethodFile = new MethodFile(methodFileNamePath);
+               
             }
             catch (Exception ex)
             {
@@ -65,95 +49,28 @@ namespace SGStatistic
         /// <param name="fileNames"></param>
         /// <param name="methodFile"></param>
         /// <param name="exportFileName"></param>
-        public void ProcessRawFiles(List<string> fileNames, MethodFile methodFile, string exportFileName)
+        public void ProcessRawFile(string fileName, MethodFile methodFile, string exportFileName)
         {
-            //loop through each file and output a list of RawFileObjects
-            for (int i = 0; i < fileNames.Count; i++)
+
+            List<RawDataObject> rawDataObjects = new List<RawDataObject>();
+            for (int j = 0; j < methodFile.Masses.Length; j++)
             {
-                List<RawDataObject> rawDataObjects = new List<RawDataObject>();
-                for (int j = 0; j < methodFile.Masses.Length; j++)
-                {
-                    rawDataObjects.Add(new RawDataObject(fileNames[i], methodFile.ChemicalFormulas[j], methodFile.Masses[j], methodFile.MassTolerances[j], methodFile.MassToleranceUnits[j]));
-                }
-
-                try
-                {
-                    //write to json object to export
-                    string rtnJsonObject = JsonConvert.SerializeObject(rawDataObjects);
-                    //write json object to the file
-                    System.IO.File.WriteAllText(fileNames[i] + exportFileName, rtnJsonObject);
-
-                    //write to CSV if toggled on
-                    WriteCSV(rawDataObjects, ",", "csv_output.csv");
-                    
-                }
-                catch (Exception ex)
-                {
-                    Console.Write(ex);
-                }
-
+                rawDataObjects.Add(new RawDataObject(fileName, methodFile.Masses[j], methodFile.MassTolerances[j], methodFile.MassToleranceUnits[j]));
             }
 
-        }
-
-        /// <summary>
-        /// Write the object to a csv
-        /// </summary>
-        /// <param name="items"></param>
-        /// <param name="delimator"></param>
-        /// <param name="outputPath"></param>
-        public void WriteCSV(IEnumerable<RawDataObject> items, string delimator, string outputPath)
-        {
-            Type itemType = typeof(RawDataObject);
-            var props = itemType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                                .OrderBy(p => p.Name);
-
-
-            using (var writer = new StreamWriter(outputPath))
+            try
             {
-                
-                //writer.WriteLine("HighMass: " + Convert.ToString(rawDataObject.HighMass));
-                //writer.WriteLine("LowMass: " + Convert.ToString(rawDataObject.LowMass));
-                //writer.WriteLine("Tolerance: " + Convert.ToString(rawDataObject.Tolerance) + Convert.ToString(rawDataObject.ToleranceUnits));
-                //writer.WriteLine("Resolution: " + Convert.ToString(rawDataObject.MassResolution));
+                //write to json object to export
+                string rtnJsonObject = JsonConvert.SerializeObject(rawDataObjects);
+                //write json object to the file
+                System.IO.File.WriteAllText(fileName + exportFileName, rtnJsonObject);
 
-                //write out the objects
-                foreach (var item in items)
-                {
-                    //write header
-                    writer.WriteLine(string.Join(delimator, props.Select(p => p.Name)));
-
-                    ////get out the values for each column
-                    //var values = props.Select(p => p.GetValue(item, null));
-                    //double[] iterateArray = values.FirstOrDefault<double[]>;
-
-                    //foreach (var column in values)
-                    //{
-                    //    string rowString = "";
-                    //    for (int i = 0; i < column[i].Length; i++)
-                    //    {
-
-                    //    }
-                    //    if (column > 1)
-                    //    {
-
-                    //        rowString.Append(column[i]);
-                    //    }
-                    //    else
-                    //    {
-
-                    //    }
-                    
-                    //}
-
-                    writer.WriteLine(string.Join(", ", props.Select(p => p.GetValue(item, null))));
-
-                    //add some spaces before iterate again
-                    writer.WriteLine("");
-                    writer.WriteLine("");
-                    //TODO: Fix how this is writing out to CSV
-                }
             }
+            catch (Exception ex)
+            {
+                Console.Write(ex);
+            }
+
         }
 
     }

@@ -17,7 +17,7 @@ mtolUnitType = ("ppm","mmu")
 emass = 0.00054858
 
 # isotopologue input class
-class IsotopologueInput:
+class Peak:
     def __init__(self, peakType, Formula, mass, mtol, unit):
         self.peakType = peakType
         self.chemicalFormula = Formula.formula
